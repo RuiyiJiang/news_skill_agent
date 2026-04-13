@@ -1,0 +1,7 @@
+interface:
+  display_name: "资讯抓取 Skill"
+  short_description: "运行和维护本地资讯抓取项目"
+  default_prompt: "使用 $news-skill-agent 配置、运行或扩展本地资讯抓取与飞书推送项目。"
+
+policy:
+  allow_implicit_invocation: false

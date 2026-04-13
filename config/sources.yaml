@@ -1,0 +1,986 @@
+- name: 国家卫健委政策法规
+  groups:
+    - 国家政府
+    - 政策监管
+  base_url: https://www.nhc.gov.cn
+  list_urls:
+    - https://www.nhc.gov.cn/wjw/zcfg/list.shtml
+  enabled: true
+  parser_type: custom_cn_gov_paged_list
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 100
+  window_days: 10
+  query_params:
+    fetch_mode: browser
+    browser_engine: chromium
+    browser_wait_selector: "a[href$='.shtml'], .pagination"
+    max_pages: "6"
+
+- name: 国家卫健委规范性文件
+  groups:
+    - 国家政府
+    - 政策监管
+  base_url: https://www.nhc.gov.cn
+  list_urls:
+    - https://www.nhc.gov.cn/wjw/gfxwjj/list.shtml
+  enabled: true
+  parser_type: custom_cn_gov_paged_list
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 100
+  window_days: 10
+  query_params:
+    fetch_mode: browser
+    browser_engine: chromium
+    browser_wait_selector: "a[href$='.shtml'], .pagination"
+    max_pages: "6"
+
+- name: 国家卫健委法律法规
+  groups:
+    - 国家政府
+    - 政策监管
+  base_url: https://www.nhc.gov.cn
+  list_urls:
+    - https://www.nhc.gov.cn/wjw/flfg/list.shtml
+  enabled: true
+  parser_type: custom_cn_gov_paged_list
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 100
+  window_days: 10
+  query_params:
+    fetch_mode: browser
+    browser_engine: chromium
+    browser_wait_selector: "a[href$='.shtml'], .pagination"
+    max_pages: "6"
+
+- name: 国家市场监督管理总局特殊食品安全监督管理司政策文件
+  groups:
+    - 国家政府
+    - 政策监管
+  base_url: https://www.samr.gov.cn
+  list_urls:
+    - https://www.samr.gov.cn/tssps/zcwj/index.html
+  enabled: true
+  parser_type: custom_cn_gov_paged_list
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 100
+  window_days: 10
+  query_params:
+    fetch_mode: browser
+    browser_engine: chromium
+    browser_wait_selector: li.content-3-left-text, .pagination
+    max_pages: "10"
+
+- name: 国家市场监督管理总局食品生产经营安全监督管理司政策文件
+  groups:
+    - 国家政府
+    - 政策监管
+  base_url: https://www.samr.gov.cn
+  list_urls:
+    - https://www.samr.gov.cn/spscs/zcfg/index.html
+  enabled: true
+  parser_type: custom_cn_gov_paged_list
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 100
+  window_days: 10
+  query_params:
+    fetch_mode: browser
+    browser_engine: chromium
+    browser_wait_selector: li.content-3-left-text, .pagination
+    max_pages: "12"
+
+- name: 国家市场监督管理总局食品安全抽检监测司信息发布
+  groups:
+    - 国家政府
+    - 政策监管
+  base_url: https://www.samr.gov.cn
+  list_urls:
+    - https://www.samr.gov.cn/spcjs/xxfb/index.html
+  enabled: true
+  parser_type: custom_cn_gov_paged_list
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 100
+  window_days: 10
+  query_params:
+    fetch_mode: browser
+    browser_engine: chromium
+    browser_wait_selector: li.content-3-left-text, .pagination
+    max_pages: "26"
+
+- name: 北京商报
+  groups:
+    - 传统媒体
+    - 国内媒体
+  base_url: https://www.bbtnews.com.cn
+  list_urls:
+    - https://www.bbtnews.com.cn/chuizhipd/shangyexinwenzhongxi/canyinpd/
+  enabled: true
+  parser_type: custom_bbt_channel
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 30
+
+- name: 界面新闻
+  groups:
+    - 新媒体
+    - 国内媒体
+  base_url: https://www.jiemian.com
+  list_urls:
+    - https://www.jiemian.com/lists/48.html
+  enabled: true
+  parser_type: custom_jiemian_newsflash
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 200
+
+- name: 北京商报
+  groups:
+    - 传统媒体
+    - 国内媒体
+  base_url: https://www.bbtnews.com.cn
+  list_urls:
+    - https://www.bbtnews.com.cn/chuizhipd/Company%20Research%20New/rypd/
+  enabled: true
+  parser_type: custom_bbt_channel
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 30
+
+- name: 36氪
+  groups:
+    - 新媒体
+    - 国内媒体
+  base_url: https://36kr.com
+  list_urls:
+    - https://36kr.com/
+  enabled: true
+  parser_type: custom_36kr_web_news
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 100
+
+
+- name: 巨潮资讯公告
+  groups:
+    - 新媒体
+  base_url: https://www.cninfo.com.cn
+  list_urls:
+    - https://www.cninfo.com.cn/new/commonUrl/pageOfSearch?url=disclosure/list/search
+  enabled: false
+  parser_type: custom_cninfo_announcements
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 40
+  query_params:
+    column: szse
+    tabName: fulltext
+    pageSize: "20"
+    maxPages: "5"
+
+
+
+- name: 华尔街日报
+  groups:
+    - 传统媒体
+  base_url: https://www.wsj.com
+  list_urls:
+    - https://www.wsj.com/business/retail?mod=nav_top_subsection
+  enabled: false
+  parser_type: generic
+  timezone: America/New_York
+  date_format_hint:
+  max_items: 60
+  window_days: 3
+
+- name: 百事公司
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.pepsico.com
+  list_urls:
+    - https://www.pepsico.com/newsroom/press-releases-category
+  enabled: true
+  parser_type: custom_pepsico_press_releases
+  timezone: America/New_York
+  date_format_hint:
+  max_items: 10
+  window_days: 3
+
+- name: 百事公司中国
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.pepsico.com.cn
+  list_urls:
+    - https://www.pepsico.com.cn/media-center/company-news
+    - https://www.pepsico.com.cn/media-center/brand-news
+    - https://www.pepsico.com.cn/media-center/pepsico-positive
+    - https://www.pepsico.com.cn/media-center/social-impact
+  enabled: true
+  parser_type: custom_pepsico_china_media_center
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 20
+  window_days: 2
+
+- name: 联合利华
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.unilever.com
+  list_urls:
+    - https://www.unilever.com/news/news-search/
+  enabled: true
+  parser_type: custom_unilever_news_search
+  timezone: Europe/London
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+  query_params:
+    fetch_mode: browser
+    browser_wait_selector: article[data-testid="uol-c-card"], a[data-testid="ush-c-results-pagination-pager-link"][href]
+
+- name: 百威英博
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.ab-inbev.com
+  list_urls:
+    - https://www.ab-inbev.com/news-media/press-releases
+    - https://www.ab-inbev.com/news-media/news-stories
+  enabled: true
+  parser_type: custom_ab_inbev_news_media
+  timezone: Europe/Brussels
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 雀巢
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.nestle.com
+  list_urls:
+    - https://www.nestle.com/media/news
+  enabled: true
+  parser_type: custom_nestle_media_news_sitemap
+  timezone: Europe/Zurich
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 雀巢日本
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.nestle.co.jp
+  list_urls:
+    - https://www.nestle.co.jp/media/pressreleases
+  enabled: true
+  parser_type: custom_nestle_media_news_sitemap
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 雀巢中国新闻稿
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.nestle.com.cn
+  list_urls:
+    - https://www.nestle.com.cn/media/pressreleases
+  enabled: true
+  parser_type: custom_nestle_china_media_list
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 雀巢中国雀巢新闻
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.nestle.com.cn
+  list_urls:
+    - https://www.nestle.com.cn/media/nestleinnews
+  enabled: true
+  parser_type: custom_nestle_media_news_sitemap
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 雀巢中国新闻速递
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.nestle.com.cn
+  list_urls:
+    - https://www.nestle.com.cn/media/news-feed
+  enabled: true
+  parser_type: custom_nestle_media_news_sitemap
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 雀巢健康科学
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.nestlehealthscience.com
+  list_urls:
+    - https://www.nestlehealthscience.com/newsroom
+  enabled: true
+  parser_type: custom_nestle_health_science_newsroom
+  timezone: UTC
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 玛氏
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.mars.com
+  list_urls:
+    - https://www.mars.com/news-and-stories/all-news-and-stories
+  enabled: true
+  parser_type: custom_mars_news_and_stories
+  timezone: UTC
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 可口可乐
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.coca-colacompany.com
+  list_urls:
+    - https://www.coca-colacompany.com/media-center
+  enabled: true
+  parser_type: custom_coca_cola_media_center
+  timezone: America/New_York
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 可口可乐日本
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.coca-cola.com
+  list_urls:
+    - https://www.coca-cola.com/jp/ja/media-center
+  enabled: true
+  parser_type: custom_coca_cola_media_center
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 亿滋国际
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.mondelezinternational.com
+  list_urls:
+    - https://www.mondelezinternational.com/news/
+  enabled: true
+  parser_type: custom_mondelez_news
+  timezone: America/Chicago
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 卡夫亨氏
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://news.kraftheinzcompany.com
+  list_urls:
+    - https://news.kraftheinzcompany.com/press-releases/default.aspx
+  enabled: true
+  parser_type: custom_kraft_heinz_press_releases
+  timezone: America/Chicago
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 通用磨坊
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.generalmills.com
+  list_urls:
+    - https://www.generalmills.com/news/press-releases
+  enabled: true
+  parser_type: custom_general_mills_press_releases
+  timezone: America/Chicago
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 达能
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.danone.com
+  list_urls:
+    - https://www.danone.com/newsroom/press-releases.html
+  enabled: true
+  parser_type: custom_danone_press_releases
+  timezone: Europe/Paris
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 达能科研
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.danoneresearch.com
+  list_urls:
+    - https://www.danoneresearch.com/science-based/newsroom/press-releases/
+  enabled: true
+  parser_type: custom_danone_press_releases
+  timezone: Europe/Paris
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 费列罗
+  groups:
+    - 巨头官网
+    - 企业官网
+  base_url: https://www.ferrero.com
+  list_urls:
+    - https://www.ferrero.com/int/en/news-stories/news
+  enabled: true
+  parser_type: custom_ferrero_news
+  timezone: Europe/Rome
+  date_format_hint:
+  max_items: 24
+  window_days: 3
+
+- name: 朝日集团
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.asahigroup-holdings.com
+  list_urls:
+    - https://www.asahigroup-holdings.com/newsroom/
+  enabled: true
+  parser_type: custom_asahi_newsroom
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 朝日啤酒
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.asahibeer.co.jp
+  list_urls:
+    - https://www.asahibeer.co.jp/news/2026/
+  enabled: true
+  parser_type: custom_asahi_beer_year_news
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 朝日研发报告
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.asahigroup-holdings.com
+  list_urls:
+    - https://www.asahigroup-holdings.com/rd/report/
+  enabled: true
+  parser_type: custom_asahi_rd_report
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+
+- name: 日清食品
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.nissin.com
+  list_urls:
+    - https://www.nissin.com/jp/company/news/
+  enabled: true
+  parser_type: custom_nissin_news
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 麒麟
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.kirinholdings.com
+  list_urls:
+    - https://www.kirinholdings.com/jp/newsroom/
+  enabled: true
+  parser_type: custom_kirin_newsroom
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 味之素
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://news.ajinomoto.co.jp
+  list_urls:
+    - https://news.ajinomoto.co.jp
+  enabled: true
+  parser_type: custom_ajinomoto_newsroom
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 明治
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.meiji.co.jp
+  list_urls:
+    - https://www.meiji.co.jp/corporate/pressrelease/
+  enabled: true
+  parser_type: custom_meiji_pressrelease
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 明治研发动态
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.meiji.co.jp
+  list_urls:
+    - https://www.meiji.co.jp/quality/r_d/topics/
+  enabled: true
+  parser_type: custom_meiji_rd_topics
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 20
+  window_days: 2
+
+- name: 雪印惠乳业
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.meg-snow.com
+  list_urls:
+    - https://www.meg-snow.com/news/
+  enabled: true
+  parser_type: custom_meg_snow_news
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 三得利
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.suntory.com
+  list_urls:
+    - https://www.suntory.com/news/?ke=mn
+  enabled: true
+  parser_type: custom_suntory_news_list
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+  query_params:
+    fetch_mode: browser
+    browser_wait_selector: .listGroup
+
+- name: 三得利日本
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.suntory.co.jp
+  list_urls:
+    - https://www.suntory.co.jp/news/?fromid=top
+    - https://www.suntory.co.jp/sic/whatsnew/
+  enabled: true
+  parser_type: custom_suntory_news_list
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 24
+  window_days: 2
+  query_params:
+    fetch_mode: browser
+    browser_wait_selector: "#search_body article.article01"
+  query_params:
+    fetch_mode: browser
+    browser_wait_selector: "#search_body article.article01"
+
+- name: 食品产业新闻社
+  groups:
+    - 传统媒体
+  base_url: https://www.ssnp.co.jp
+  list_urls:
+    - https://www.ssnp.co.jp/news/
+  enabled: true
+  parser_type: custom_ssnp_news
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 60
+
+- name: 美通社
+  groups:
+    - 新媒体
+  base_url: https://www.prnasia.com
+  list_urls:
+    - https://www.prnasia.com/releases/all/listpage-all-15-all-all-all-industry-1.shtml
+  enabled: true
+  parser_type: custom_prnasia_industry
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 80
+
+- name: 路透社
+  groups:
+    - 传统媒体
+  base_url: https://www.reuters.com
+  list_urls:
+    - https://www.reuters.com/business/retail-consumer/
+  enabled: false
+  parser_type: generic
+  timezone: America/New_York
+  date_format_hint:
+  max_items: 60
+  window_days: 3
+
+- name: 纽约时报
+  groups:
+    - 传统媒体
+  base_url: https://www.nytimes.com/international/section/business
+  list_urls:
+    - https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/international/section/business/rss.xml
+  enabled: true
+  parser_type: custom_feed
+  timezone: America/New_York
+  date_format_hint:
+  max_items: 60
+  window_days: 3
+
+- name: Just Food
+  groups:
+    - 传统媒体
+  base_url: https://www.just-food.com/news/
+  list_urls:
+    - https://www.just-food.com/news/feed/
+  enabled: true
+  parser_type: custom_feed
+  timezone: Europe/London
+  date_format_hint:
+  max_items: 60
+  window_days: 3
+
+- name: 投资界
+  groups:
+    - 新媒体
+    - 国内媒体
+  base_url: https://www.pedaily.cn/first/
+  list_urls:
+    - https://www.pedaily.cn/first/
+  enabled: true
+  parser_type: custom_pedaily_newsflash
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 80
+
+- name: PR TIMES グルメ
+  groups:
+    - 传统媒体
+    - 海外媒体
+  base_url: https://prtimes.jp/gourmet/
+  list_urls:
+    - https://prtimes.jp/gourmet/
+  enabled: true
+  parser_type: custom_prtimes_gourmet
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 40
+
+- name: Food Dive
+  groups:
+    - 传统媒体
+    - 海外媒体
+  base_url: https://www.fooddive.com/news/
+  list_urls:
+    - https://www.fooddive.com/feeds/news/
+  enabled: true
+  parser_type: custom_feed
+  timezone: America/New_York
+  date_format_hint:
+  max_items: 40
+  window_days: 3
+
+- name: 食品新聞
+  groups:
+    - 传统媒体
+    - 海外媒体
+  base_url: https://shokuhin.net
+  list_urls:
+    - https://shokuhin.net/feed/
+  enabled: true
+  parser_type: custom_feed
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 60
+
+- name: FoodBev
+  groups:
+    - 传统媒体
+    - 海外媒体
+  base_url: https://www.foodbev.com/latest-news
+  list_urls:
+    - https://www.foodbev.com/latest-news
+  enabled: true
+  parser_type: custom_foodbev_homepage
+  timezone: Europe/London
+  date_format_hint:
+  max_items: 40
+  window_days: 3
+
+- name: FoodTalks
+  groups:
+    - 新媒体
+    - 快讯
+    - 商业财经
+    - 国内媒体
+  base_url: https://www.foodtalks.cn/flash/
+  list_urls:
+    - https://www.foodtalks.cn/flash/
+  enabled: true
+  parser_type: custom_foodtalks_flash
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 60
+
+- name: FoodTalks News
+  groups:
+    - 新媒体
+    - 全部资讯
+    - 商业财经
+    - 国内媒体
+  base_url: https://www.foodtalks.cn/news
+  list_urls:
+    - https://www.foodtalks.cn/news
+  enabled: false
+  parser_type: custom_foodtalks_news
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 40
+  query_params:
+    api_path: /news/news/page
+    pageSize: "20"
+    maxPages: "5"
+
+- name: 新京报
+  groups:
+    - 传统媒体
+    - 国内媒体
+  base_url: https://www.bjnews.com.cn/industrial
+  list_urls:
+    - https://www.bjnews.com.cn/industrial
+  enabled: false
+  parser_type: custom_bjnews_industrial
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 40
+
+- name: 澎湃快讯
+  groups:
+    - 新媒体
+    - 国内媒体
+  base_url: https://www.thepaper.cn/expressNews
+  list_urls:
+    - https://www.thepaper.cn/expressNews
+  enabled: true
+  parser_type: custom_thepaper_express
+  timezone: Asia/Shanghai
+  date_format_hint:
+  max_items: 20
+
+- name: 森永乳业
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.morinagamilk.co.jp
+  list_urls:
+    - https://www.morinagamilk.co.jp/release/
+  enabled: true
+  parser_type: custom_morinaga_milk_release
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 养乐多
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.yakult.co.jp
+  list_urls:
+    - https://www.yakult.co.jp/information/
+  enabled: true
+  parser_type: custom_yakult_information
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 伊藤园
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 日本
+  base_url: https://www.itoen.co.jp
+  list_urls:
+    - https://www.itoen.co.jp/news/release/
+  enabled: true
+  parser_type: custom_ito_en_release
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: CJ韩国新闻稿
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 韩国
+  base_url: https://www.cj.co.kr
+  list_urls:
+    - https://www.cj.co.kr/kr/newsroom/pressreleases
+  enabled: true
+  parser_type: custom_cj_korea_newsroom
+  timezone: Asia/Seoul
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: CJ韩国企划专栏
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 韩国
+  base_url: https://www.cj.co.kr
+  list_urls:
+    - https://www.cj.co.kr/kr/newsroom/stories
+  enabled: true
+  parser_type: custom_cj_korea_newsroom
+  timezone: Asia/Seoul
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: CJ韩国媒体报道
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 韩国
+  base_url: https://www.cj.co.kr
+  list_urls:
+    - https://www.cj.co.kr/kr/newsroom/inthemedia
+  enabled: true
+  parser_type: custom_cj_korea_newsroom
+  timezone: Asia/Seoul
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 乐天七星饮料
+  groups:
+    - 巨头官网
+    - 企业官网
+    - 韩国
+  base_url: https://company.lottechilsung.co.kr
+  list_urls:
+    - https://company.lottechilsung.co.kr/kor/company/news/list.do
+  enabled: true
+  parser_type: custom_lotte_chilsung_news
+  timezone: Asia/Seoul
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 全家
+  groups:
+    - 巨头官网
+    - 便利店
+    - 日本
+  base_url: https://www.family.co.jp
+  list_urls:
+    - https://www.family.co.jp/company/news_releases/2026.html
+  enabled: true
+  parser_type: custom_familymart_news_releases
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 罗森
+  groups:
+    - 巨头官网
+    - 便利店
+    - 日本
+  base_url: https://www.lawson.co.jp
+  list_urls:
+    - https://www.lawson.co.jp/company/news/index.html
+  enabled: true
+  parser_type: custom_lawson_news
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
+
+- name: 7-Eleven日本
+  groups:
+    - 巨头官网
+    - 便利店
+    - 日本
+  base_url: https://www.sej.co.jp
+  list_urls:
+    - https://www.sej.co.jp/company/news_release/news/2026.html
+  enabled: true
+  parser_type: custom_seven_eleven_japan_news_releases
+  timezone: Asia/Tokyo
+  date_format_hint:
+  max_items: 30
+  window_days: 2
