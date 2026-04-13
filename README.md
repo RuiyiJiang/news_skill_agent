@@ -85,7 +85,7 @@ news_skill_agent/
 1. 进入目录：
 
 ```bash
-cd /Users/ruiyi/Documents/Playground/news_skill_agent
+cd ./Documents/Playground/news_skill_agent
 ```
 
 2. 创建虚拟环境：
@@ -115,8 +115,8 @@ cp .env.example .env
 APP_ENV=development
 LOG_LEVEL=INFO
 APP_TIMEZONE=Asia/Shanghai
-OUTPUT_DIR=/Users/ruiyi/Documents/Playground/news_skill_agent/output
-SOURCES_FILE=/Users/ruiyi/Documents/Playground/news_skill_agent/config/sources.yaml
+OUTPUT_DIR=./Documents/Playground/news_skill_agent/output
+SOURCES_FILE=./Documents/Playground/news_skill_agent/config/sources.yaml
 REQUEST_TIMEOUT_SECONDS=15
 MAX_DETAIL_FETCH_PER_SOURCE=10
 MAX_ITEMS_PER_SOURCE=30
