@@ -1,26 +1,319 @@
-.news-item.status-record {
-    border-left: 4px solid #adb5bd;
-    background-color: #f8f9fa;
+/* ===== 全局 ===== */
+
+body {
+    margin: 0;
+    background: #f5f5f7;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "PingFang SC",
+        sans-serif;
+    color: #1d1d1f;
 }
 
-.news-item.status-record .card-title a {
-    color: #6c757d;
+/* ===== 主布局 ===== */
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
 }
 
-.news-item .extra-field {
-    font-size: 0.9rem;
-    margin-bottom: 0.35rem;
+/* ===== 左侧导航 ===== */
+
+.sidebar {
+    width: 260px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid #e5e5e7;
+
+    padding: 32px 20px;
+
+    position: sticky;
+    top: 0;
+    height: 100vh;
+
+    overflow-y: auto;
 }
 
-.news-item .extra-field .field-label {
+/* 标题 */
+
+.app-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.03em;
+}
+
+.update-time {
+    font-size: 0.85rem;
+    color: #86868b;
+    margin-bottom: 36px;
+}
+
+/* 分组 */
+
+.nav-section {
+    margin-bottom: 28px;
+}
+
+.nav-section-title {
+    font-size: 0.78rem;
     font-weight: 600;
-    color: #495057;
+    color: #86868b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
 }
 
-#pagination .page-link {
-    cursor: pointer;
+/* 导航列表 */
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-#updated-at {
-    white-space: nowrap;
+.nav-item {
+    margin-bottom: 6px;
+}
+
+/* 导航按钮 */
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 14px;
+
+    border-radius: 14px;
+
+    text-decoration: none;
+    color: #1d1d1f;
+
+    transition: all 0.2s ease;
+}
+
+/* hover */
+
+.nav-link:hover {
+    background: #ededf0;
+    color: #000;
+}
+
+/* 当前选中 */
+
+.nav-link.active {
+    background: #1d1d1f;
+    color: white;
+}
+
+/* ===== 右侧内容 ===== */
+
+.main-content {
+    flex: 1;
+    padding: 40px 48px;
+}
+
+/* ===== 顶部工具栏 ===== */
+
+.content-header {
+    margin-bottom: 28px;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* 搜索框 */
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 260px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #86868b;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 14px 16px 14px 42px;
+
+    border: 1px solid #d2d2d7;
+    border-radius: 14px;
+
+    background: white;
+
+    font-size: 0.95rem;
+}
+
+/* select */
+
+.form-select {
+    border-radius: 14px;
+    border: 1px solid #d2d2d7;
+    padding: 12px 16px;
+    background-color: white;
+}
+
+/* ===== 数据切换按钮 ===== */
+
+.btn-group {
+    background: #e9e9ed;
+    border-radius: 14px;
+    padding: 4px;
+}
+
+.btn-toggle {
+    border: none;
+    background: transparent;
+
+    padding: 10px 18px;
+    border-radius: 10px;
+
+    transition: all 0.2s ease;
+}
+
+.btn-toggle.active {
+    background: white;
+    box-shadow:
+        0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* ===== 结果标题 ===== */
+
+.results-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+
+    letter-spacing: -0.03em;
+}
+
+.results-count {
+    color: #86868b;
+    font-size: 1rem;
+    margin-left: 8px;
+}
+
+/* ===== 新闻卡片 ===== */
+
+.news-item {
+    border: none !important;
+
+    border-radius: 22px !important;
+
+    background: rgba(255,255,255,0.82);
+
+    backdrop-filter: blur(20px);
+
+    box-shadow:
+        0 4px 20px rgba(0,0,0,0.04);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+
+    margin-bottom: 22px !important;
+}
+
+/* hover 动效 */
+
+.news-item:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,0.08);
+}
+
+/* 卡片内部 */
+
+.news-item .card-body {
+    padding: 24px;
+}
+
+/* 标题 */
+
+.card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.card-title a {
+    color: #1d1d1f;
+    text-decoration: none;
+}
+
+/* 摘要 */
+
+.card-text,
+.extra-field {
+    color: #6e6e73;
+    line-height: 1.7;
+}
+
+/* badge */
+
+.badge {
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-weight: 500;
+}
+
+/* ===== 分页 ===== */
+
+.pagination {
+    gap: 8px;
+}
+
+.page-link {
+    border: none;
+    border-radius: 12px !important;
+
+    color: #1d1d1f;
+
+    padding: 10px 14px;
+}
+
+.page-item.active .page-link {
+    background: #1d1d1f;
+    color: white;
+}
+
+/* ===== Footer ===== */
+
+footer {
+    display: none;
+}
+
+/* ===== 响应式 ===== */
+
+@media (max-width: 900px) {
+
+    .app-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid #e5e5e7;
+    }
+
+    .main-content {
+        padding: 24px;
+    }
 }
