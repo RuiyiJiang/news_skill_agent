@@ -1,0 +1,26 @@
+.news-item.status-record {
+    border-left: 4px solid #adb5bd;
+    background-color: #f8f9fa;
+}
+
+.news-item.status-record .card-title a {
+    color: #6c757d;
+}
+
+.news-item .extra-field {
+    font-size: 0.9rem;
+    margin-bottom: 0.35rem;
+}
+
+.news-item .extra-field .field-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+#pagination .page-link {
+    cursor: pointer;
+}
+
+#updated-at {
+    white-space: nowrap;
+}
