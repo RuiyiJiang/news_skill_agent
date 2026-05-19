@@ -4,352 +4,456 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>资讯聚合平台</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="./assets/css/style.css" rel="stylesheet">
 </head>
+
 <body>
-    <div class="app-container">
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                    <h1 class="app-title">
-                        资讯提取
-                    </h1>
-                <div class="update-time" id="updated-at">
-                    <i class="bi bi-clock-history"></i>
-                    <span>加载中...</span>
-                </div>
-            </div>
 
-            <div class="nav-section">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active" data-section="home">
-                            <i class="bi bi-house"></i>
-                            <span>首页</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+<div class="layout">
 
-            <div class="nav-section">
-                <h3 class="nav-section-title">资讯分组</h3>
-                <ul class="nav-list" id="label-nav">
-                    <!-- 动态生成分组导航 -->
-                </ul>
-            </div>
-        </nav>
+    <!-- Sidebar -->
+    <aside class="sidebar">
 
-        <main class="main-content">
-            <div class="content-header">
-                <div class="filter-controls">
-                    <div class="search-box">
-                        <i class="bi bi-search"></i>
-                        <input type="text" id="query-input" placeholder="搜索标题或摘要...">
-                    </div>
+        <div class="sidebar-top">
+            <h1 class="logo">资讯聚合</h1>
 
-                    <select class="form-select" id="source-select">
-                        <option value="">所有来源</option>
-                    </select>
-
-                    <div class="btn-group" id="dataset-toggle">
-                        <button type="button" class="btn-toggle active" data-dataset="filtered">已筛选</button>
-                        <button type="button" class="btn-toggle" data-dataset="all">全部</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-body">
-                <div class="results-header">
-                    <h2 class="results-title">
-                        <span id="section-title">全部资讯</span>
-                        <span class="results-count">
-                            <span id="total-count">0</span> 条
-                        </span>
-                    </h2>
-                </div>
-
-                <div id="news-list"></div>
-
-                <nav aria-label="Page navigation" class="pagination-container d-none" id="pagination">
-                    <ul class="pagination"></ul>
-                </nav>
-            </div>
-        </main>
-    </div>
-
-    <footer class="bg-light mt-5 py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0 text-muted">&copy; 2026 资讯聚合平台</p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <p class="mb-0 text-muted">
-                        <i class="bi bi-github"></i> GitHub Pages
-                    </p>
-                </div>
+            <div class="update-time" id="updated-at">
+                加载中...
             </div>
         </div>
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const ITEMS_PER_PAGE = 20;
-        const state = {
-            manifest: null,
-            datasets: { all: [], filtered: [] },
-            currentDataset: "filtered",
-            filters: { query: "", source: "", label: "" },
-            page: 1,
-        };
+        <nav class="nav">
 
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;");
+            <a class="nav-link active" data-label="">
+                <i class="bi bi-house"></i>
+                首页
+            </a>
+
+            <div class="nav-group-title">
+                资讯分组
+            </div>
+
+            <div id="label-nav"></div>
+
+        </nav>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input
+                    type="text"
+                    id="query-input"
+                    placeholder="搜索资讯..."
+                >
+            </div>
+
+            <select id="source-select">
+                <option value="">所有来源</option>
+            </select>
+
+        </div>
+
+        <!-- Header -->
+        <div class="page-header">
+
+            <h2 id="section-title">
+                全部资讯
+            </h2>
+
+            <div class="count">
+                <span id="total-count">0</span>
+                条资讯
+            </div>
+
+        </div>
+
+        <!-- News -->
+        <div id="news-list"></div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+
+    </main>
+
+</div>
+
+<script>
+
+const ITEMS_PER_PAGE = 20;
+
+const state = {
+    manifest: null,
+    datasets: {
+        all: [],
+        filtered: []
+    },
+
+    currentDataset: "filtered",
+
+    filters: {
+        query: "",
+        source: "",
+        label: ""
+    },
+
+    page: 1
+};
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function formatUpdatedAt(isoString) {
+    if (!isoString) return "暂无数据";
+
+    const date = new Date(isoString);
+
+    if (Number.isNaN(date.getTime())) {
+        return isoString;
+    }
+
+    return date.toLocaleString("zh-CN", {
+        hour12: false
+    });
+}
+
+function getActiveItems() {
+    return state.datasets[state.currentDataset] || [];
+}
+
+function applyFilters(items) {
+
+    const query =
+        state.filters.query.trim().toLowerCase();
+
+    const source =
+        state.filters.source.trim().toLowerCase();
+
+    const label =
+        state.filters.label.trim().toLowerCase();
+
+    return items.filter(item => {
+
+        if (query) {
+
+            const haystack =
+                `${item.title || ""}
+                 ${item.summary || ""}
+                 ${item.foreign_summary || ""}`
+                .toLowerCase();
+
+            if (!haystack.includes(query)) {
+                return false;
+            }
         }
 
-        function formatUpdatedAt(isoString) {
-            if (!isoString) return "暂无数据";
-            const date = new Date(isoString);
-            if (Number.isNaN(date.getTime())) return isoString;
-            return date.toLocaleString("zh-CN", { hour12: false });
+        if (
+            source &&
+            !(item.source || "")
+            .toLowerCase()
+            .includes(source)
+        ) {
+            return false;
         }
 
-        function getActiveItems() {
-            return state.datasets[state.currentDataset] || [];
+        if (
+            label &&
+            !(item.label || "")
+            .toLowerCase()
+            .includes(label)
+        ) {
+            return false;
         }
 
-        function applyFilters(items) {
-            const query = state.filters.query.trim().toLowerCase();
-            const source = state.filters.source.trim().toLowerCase();
-            const label = state.filters.label.trim().toLowerCase();
+        return true;
+    });
+}
 
-            return items.filter((item) => {
-                if (query) {
-                    const haystack = `${item.title || ""} ${item.summary || ""} ${item.foreign_summary || ""}`.toLowerCase();
-                    if (!haystack.includes(query)) return false;
-                }
-                if (source && !(item.source || "").toLowerCase().includes(source)) return false;
-                if (label && !(item.label || "").toLowerCase().includes(label)) return false;
-                return true;
+function populateSidebar(items) {
+
+    const nav = document.getElementById("label-nav");
+
+    const labels = [
+        ...new Set(
+            items.map(item => item.label)
+            .filter(Boolean)
+        )
+    ].sort();
+
+    nav.innerHTML = labels.map(label => `
+        <a class="nav-link"
+           data-label="${escapeHtml(label)}">
+
+            <i class="bi bi-folder2"></i>
+
+            ${escapeHtml(label)}
+        </a>
+    `).join("");
+
+    document.querySelectorAll(".nav-link")
+        .forEach(link => {
+
+            link.addEventListener("click", () => {
+
+                document.querySelectorAll(".nav-link")
+                    .forEach(el => {
+                        el.classList.remove("active");
+                    });
+
+                link.classList.add("active");
+
+                state.filters.label =
+                    link.dataset.label || "";
+
+                document.getElementById(
+                    "section-title"
+                ).textContent =
+                    state.filters.label || "全部资讯";
+
+                state.page = 1;
+
+                render();
             });
-        }
 
-        function populateFilterOptions(items) {
-            const sourceSelect = document.getElementById("source-select");
-            const labelSelect = document.getElementById("label-select");
-            const sources = [...new Set(items.map((item) => item.source).filter(Boolean))].sort();
-            const labels = [...new Set(items.map((item) => item.label).filter(Boolean))].sort();
+        });
+}
 
-            sourceSelect.innerHTML = '<option value="">所有来源</option>' + sources.map(
-                (src) => `<option value="${escapeHtml(src)}">${escapeHtml(src)}</option>`
-            ).join("");
-            labelSelect.innerHTML = '<option value="">所有标签</option>' + labels.map(
-                (lbl) => `<option value="${escapeHtml(lbl)}">${escapeHtml(lbl)}</option>`
-            ).join("");
+function populateSourceSelect(items) {
 
-            sourceSelect.value = state.filters.source;
-            labelSelect.value = state.filters.label;
-        }
+    const sourceSelect =
+        document.getElementById("source-select");
 
-        function renderItem(item) {
-            const statusClass = item.is_status ? "status-record" : "";
-            const published = item.published_at || item.raw_date_text || "未知时间";
-            const url = item.url || "#";
-            const showSummaryFields = state.currentDataset === "filtered";
-            let extraFields = "";
+    const sources = [
+        ...new Set(
+            items.map(item => item.source)
+            .filter(Boolean)
+        )
+    ].sort();
 
-            if (showSummaryFields && item.chinese_translation) {
-                extraFields += `<p class="extra-field"><span class="field-label">标题汉语翻译：</span>${escapeHtml(item.chinese_translation)}</p>`;
-            }
-            if (showSummaryFields && item.summary) {
-                extraFields += `<p class="card-text text-muted">${escapeHtml(item.summary)}</p>`;
-            }
-            if (showSummaryFields && item.foreign_summary) {
-                extraFields += `<p class="extra-field"><span class="field-label">外语资讯摘要：</span>${escapeHtml(item.foreign_summary)}</p>`;
-            }
+    sourceSelect.innerHTML =
+        `<option value="">所有来源</option>` +
+        sources.map(src => `
+            <option value="${escapeHtml(src)}">
+                ${escapeHtml(src)}
+            </option>
+        `).join("");
+}
 
-            const linkBlock = item.is_status
-                ? ""
-                : `<div class="col-md-2 text-end">
-                        <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-arrow-right"></i> 阅读原文
-                        </a>
-                   </div>`;
+function renderItem(item) {
 
-            return `
-                <div class="card news-item shadow-sm mb-3 ${statusClass}">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-10">
-                                <h5 class="card-title">
-                                    ${item.is_status
-                                        ? escapeHtml(item.title)
-                                        : `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
-                                               ${escapeHtml(item.title)}
-                                               <i class="bi bi-box-arrow-up-right ms-1 small"></i>
-                                           </a>`}
-                                </h5>
-                                ${extraFields}
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    <span class="badge bg-light text-dark">
-                                        <i class="bi bi-building"></i> ${escapeHtml(item.source)}
-                                    </span>
-                                    ${item.label ? `<span class="badge bg-secondary"><i class="bi bi-tag"></i> ${escapeHtml(item.label)}</span>` : ""}
-                                    <span class="badge bg-light text-dark">
-                                        <i class="bi bi-calendar"></i> ${escapeHtml(published)}
-                                    </span>
-                                </div>
-                            </div>
-                            ${linkBlock}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+    const url = item.url || "#";
 
-        function renderPagination(totalPages) {
-            const nav = document.getElementById("pagination");
-            const list = nav.querySelector("ul");
-            if (totalPages <= 1) {
-                nav.classList.add("d-none");
-                list.innerHTML = "";
-                return;
-            }
-            nav.classList.remove("d-none");
+    const published =
+        item.published_at ||
+        item.raw_date_text ||
+        "未知时间";
 
-            const pages = [];
-            for (let page = 1; page <= totalPages; page += 1) {
-                if (page === 1 || page === totalPages || (page >= state.page - 2 && page <= state.page + 2)) {
-                    pages.push(page);
-                } else if (pages[pages.length - 1] !== "...") {
-                    pages.push("...");
-                }
+    return `
+        <article class="news-card">
+
+            <div class="news-meta">
+
+                <span>${escapeHtml(item.source || "未知来源")}</span>
+
+                <span>·</span>
+
+                <span>${escapeHtml(published)}</span>
+
+            </div>
+
+            <h3 class="news-title">
+
+                <a href="${escapeHtml(url)}"
+                   target="_blank">
+
+                    ${escapeHtml(item.title)}
+
+                </a>
+
+            </h3>
+
+            ${
+                item.summary
+                ? `
+                    <p class="news-summary">
+                        ${escapeHtml(item.summary)}
+                    </p>
+                `
+                : ""
             }
 
-            const items = [];
-            items.push(`<li class="page-item ${state.page === 1 ? "disabled" : ""}">
-                <a class="page-link" data-page="${state.page - 1}" aria-label="Previous"><i class="bi bi-chevron-left"></i></a>
-            </li>`);
-            pages.forEach((page) => {
-                if (page === "...") {
-                    items.push('<li class="page-item disabled"><span class="page-link">...</span></li>');
-                    return;
-                }
-                items.push(`<li class="page-item ${page === state.page ? "active" : ""}">
-                    <a class="page-link" data-page="${page}">${page}</a>
-                </li>`);
+        </article>
+    `;
+}
+
+function renderPagination(totalPages) {
+
+    const container =
+        document.getElementById("pagination");
+
+    if (totalPages <= 1) {
+        container.innerHTML = "";
+        return;
+    }
+
+    let html = "";
+
+    for (
+        let page = 1;
+        page <= totalPages;
+        page++
+    ) {
+
+        html += `
+            <button
+                class="page-btn
+                ${page === state.page ? "active" : ""}"
+                data-page="${page}">
+                ${page}
+            </button>
+        `;
+    }
+
+    container.innerHTML = html;
+
+    container.querySelectorAll(".page-btn")
+        .forEach(btn => {
+
+            btn.addEventListener("click", () => {
+
+                state.page =
+                    Number(btn.dataset.page);
+
+                render();
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+
             });
-            items.push(`<li class="page-item ${state.page === totalPages ? "disabled" : ""}">
-                <a class="page-link" data-page="${state.page + 1}" aria-label="Next"><i class="bi bi-chevron-right"></i></a>
-            </li>`);
-            list.innerHTML = items.join("");
-        }
 
-        function render() {
-            const items = applyFilters(getActiveItems());
-            const totalItems = items.length;
-            const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-            state.page = Math.min(state.page, totalPages);
-
-            const start = (state.page - 1) * ITEMS_PER_PAGE;
-            const pageItems = items.slice(start, start + ITEMS_PER_PAGE);
-            const listEl = document.getElementById("news-list");
-
-            document.getElementById("total-count").textContent = String(totalItems);
-
-            if (!pageItems.length) {
-                listEl.innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="bi bi-inbox display-1 text-muted"></i>
-                        <h4 class="mt-3 text-muted">暂无数据</h4>
-                        <p class="text-muted">请运行爬虫后推送 docs/ 目录，或调整筛选条件</p>
-                    </div>
-                `;
-            } else {
-                listEl.innerHTML = pageItems.map(renderItem).join("");
-            }
-
-            renderPagination(totalPages);
-        }
-
-        async function loadData() {
-            const [manifestRes, allRes, filteredRes] = await Promise.all([
-                fetch("./data/manifest.json"),
-                fetch("./data/all.json"),
-                fetch("./data/filtered.json"),
-            ]);
-
-            if (!manifestRes.ok || !allRes.ok || !filteredRes.ok) {
-                throw new Error("数据文件加载失败，请先运行抓取并导出 docs/data");
-            }
-
-            state.manifest = await manifestRes.json();
-            state.datasets.all = await allRes.json();
-            state.datasets.filtered = await filteredRes.json();
-
-            const scope = (state.manifest.report_scope || []).join("、");
-            const scopeText = scope ? `（${scope}）` : "";
-            document.getElementById("updated-at").innerHTML =
-                `<i class="bi bi-clock-history"></i> 最后更新: ${formatUpdatedAt(state.manifest.generated_at)}${escapeHtml(scopeText)}`;
-
-            populateFilterOptions(getActiveItems());
-            render();
-        }
-
-        document.getElementById("filter-form").addEventListener("submit", (event) => {
-            event.preventDefault();
-            state.filters.query = document.getElementById("query-input").value;
-            state.filters.source = document.getElementById("source-select").value;
-            state.filters.label = document.getElementById("label-select").value;
-            state.page = 1;
-            render();
         });
+}
 
-        document.getElementById("reset-filters").addEventListener("click", () => {
-            state.filters = { query: "", source: "", label: "" };
-            document.getElementById("query-input").value = "";
-            document.getElementById("source-select").value = "";
-            document.getElementById("label-select").value = "";
-            state.page = 1;
-            render();
-        });
+function render() {
 
-        document.getElementById("dataset-toggle").addEventListener("click", (event) => {
-            const button = event.target.closest("button[data-dataset]");
-            if (!button) return;
-            state.currentDataset = button.dataset.dataset;
-            document.querySelectorAll("#dataset-toggle button").forEach((el) => {
-                el.classList.toggle("active", el === button);
-            });
-            populateFilterOptions(getActiveItems());
-            state.page = 1;
-            render();
-        });
+    const items =
+        applyFilters(getActiveItems());
 
-        document.getElementById("pagination").addEventListener("click", (event) => {
-            const link = event.target.closest("a[data-page]");
-            if (!link) return;
-            event.preventDefault();
-            const page = Number(link.dataset.page);
-            if (!Number.isFinite(page) || page < 1) return;
-            state.page = page;
-            render();
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
+    const totalItems = items.length;
 
-        loadData().catch((error) => {
-            document.getElementById("updated-at").textContent = "数据加载失败";
-            document.getElementById("news-list").innerHTML = `
-                <div class="alert alert-warning" role="alert">
-                    ${escapeHtml(error.message)}
-                </div>
-            `;
-        });
-    </script>
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(totalItems / ITEMS_PER_PAGE)
+        );
+
+    const start =
+        (state.page - 1) * ITEMS_PER_PAGE;
+
+    const pageItems =
+        items.slice(
+            start,
+            start + ITEMS_PER_PAGE
+        );
+
+    document.getElementById(
+        "total-count"
+    ).textContent = totalItems;
+
+    const list =
+        document.getElementById("news-list");
+
+    if (!pageItems.length) {
+
+        list.innerHTML = `
+            <div class="empty">
+                暂无数据
+            </div>
+        `;
+
+    } else {
+
+        list.innerHTML =
+            pageItems.map(renderItem).join("");
+    }
+
+    renderPagination(totalPages);
+}
+
+async function loadData() {
+
+    const [
+        manifestRes,
+        allRes,
+        filteredRes
+    ] = await Promise.all([
+        fetch("./data/manifest.json"),
+        fetch("./data/all.json"),
+        fetch("./data/filtered.json")
+    ]);
+
+    state.manifest =
+        await manifestRes.json();
+
+    state.datasets.all =
+        await allRes.json();
+
+    state.datasets.filtered =
+        await filteredRes.json();
+
+    document.getElementById(
+        "updated-at"
+    ).textContent =
+        "最后更新：" +
+        formatUpdatedAt(
+            state.manifest.generated_at
+        );
+
+    populateSidebar(getActiveItems());
+
+    populateSourceSelect(getActiveItems());
+
+    render();
+}
+
+document.getElementById("query-input")
+    .addEventListener("input", e => {
+
+        state.filters.query = e.target.value;
+
+        state.page = 1;
+
+        render();
+    });
+
+document.getElementById("source-select")
+    .addEventListener("change", e => {
+
+        state.filters.source = e.target.value;
+
+        state.page = 1;
+
+        render();
+    });
+
+loadData();
+
+</script>
+
 </body>
 </html>

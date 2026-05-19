@@ -1,319 +1,366 @@
-/* ===== 全局 ===== */
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
+
     background: #f5f5f7;
+
+    color: #1d1d1f;
+
     font-family:
         -apple-system,
         BlinkMacSystemFont,
         "SF Pro Display",
         "PingFang SC",
         sans-serif;
-    color: #1d1d1f;
 }
 
-/* ===== 主布局 ===== */
+/* Layout */
 
-.app-container {
+.layout {
     display: flex;
     min-height: 100vh;
 }
 
-/* ===== 左侧导航 ===== */
+/* Sidebar */
 
 .sidebar {
+
     width: 260px;
-    background: rgba(255,255,255,0.72);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid #e5e5e7;
 
     padding: 32px 20px;
 
+    background:
+        rgba(255,255,255,0.72);
+
+    backdrop-filter: blur(20px);
+
+    border-right:
+        1px solid #e5e5e7;
+
     position: sticky;
+
     top: 0;
+
     height: 100vh;
 
     overflow-y: auto;
 }
 
-/* 标题 */
+.logo {
 
-.app-title {
+    margin: 0 0 12px;
+
     font-size: 1.8rem;
+
     font-weight: 700;
-    margin-bottom: 10px;
+
     letter-spacing: -0.03em;
 }
 
 .update-time {
-    font-size: 0.85rem;
+
     color: #86868b;
-    margin-bottom: 36px;
+
+    font-size: 0.9rem;
+
+    margin-bottom: 32px;
 }
 
-/* 分组 */
+.nav-group-title {
 
-.nav-section {
-    margin-bottom: 28px;
-}
+    margin:
+        24px 0 10px;
 
-.nav-section-title {
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+
     color: #86868b;
+
     text-transform: uppercase;
+
     letter-spacing: 0.08em;
-    margin-bottom: 12px;
 }
-
-/* 导航列表 */
-
-.nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.nav-item {
-    margin-bottom: 6px;
-}
-
-/* 导航按钮 */
 
 .nav-link {
+
     display: flex;
+
     align-items: center;
+
     gap: 10px;
 
     padding: 12px 14px;
 
     border-radius: 14px;
 
-    text-decoration: none;
     color: #1d1d1f;
 
-    transition: all 0.2s ease;
-}
+    cursor: pointer;
 
-/* hover */
+    transition: 0.2s;
+
+    margin-bottom: 6px;
+}
 
 .nav-link:hover {
-    background: #ededf0;
-    color: #000;
+    background: #ececef;
 }
 
-/* 当前选中 */
-
 .nav-link.active {
+
     background: #1d1d1f;
+
     color: white;
 }
 
-/* ===== 右侧内容 ===== */
+/* Main */
 
-.main-content {
+.main {
+
     flex: 1;
+
     padding: 40px 48px;
 }
 
-/* ===== 顶部工具栏 ===== */
+/* Topbar */
 
-.content-header {
-    margin-bottom: 28px;
-}
+.topbar {
 
-.filter-controls {
     display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    align-items: center;
-}
 
-/* 搜索框 */
+    gap: 16px;
+
+    margin-bottom: 36px;
+
+    flex-wrap: wrap;
+}
 
 .search-box {
+
     position: relative;
+
     flex: 1;
+
     min-width: 260px;
 }
 
 .search-box i {
+
     position: absolute;
+
     left: 14px;
+
     top: 50%;
+
     transform: translateY(-50%);
+
     color: #86868b;
 }
 
 .search-box input {
-    width: 100%;
-    padding: 14px 16px 14px 42px;
 
-    border: 1px solid #d2d2d7;
-    border-radius: 14px;
+    width: 100%;
+
+    padding:
+        14px 16px 14px 42px;
+
+    border:
+        1px solid #d2d2d7;
+
+    border-radius: 16px;
 
     background: white;
 
     font-size: 0.95rem;
 }
 
-/* select */
+select {
 
-.form-select {
-    border-radius: 14px;
-    border: 1px solid #d2d2d7;
-    padding: 12px 16px;
-    background-color: white;
-}
+    padding: 14px 16px;
 
-/* ===== 数据切换按钮 ===== */
+    border-radius: 16px;
 
-.btn-group {
-    background: #e9e9ed;
-    border-radius: 14px;
-    padding: 4px;
-}
+    border:
+        1px solid #d2d2d7;
 
-.btn-toggle {
-    border: none;
-    background: transparent;
-
-    padding: 10px 18px;
-    border-radius: 10px;
-
-    transition: all 0.2s ease;
-}
-
-.btn-toggle.active {
     background: white;
-    box-shadow:
-        0 1px 2px rgba(0,0,0,0.06);
 }
 
-/* ===== 结果标题 ===== */
+/* Header */
 
-.results-title {
+.page-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 32px;
+
+    flex-wrap: wrap;
+}
+
+.page-header h2 {
+
+    margin: 0;
+
     font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 28px;
 
     letter-spacing: -0.03em;
 }
 
-.results-count {
+.count {
+
     color: #86868b;
-    font-size: 1rem;
-    margin-left: 8px;
 }
 
-/* ===== 新闻卡片 ===== */
+/* News Card */
 
-.news-item {
-    border: none !important;
+.news-card {
 
-    border-radius: 22px !important;
-
-    background: rgba(255,255,255,0.82);
+    background:
+        rgba(255,255,255,0.8);
 
     backdrop-filter: blur(20px);
+
+    border-radius: 24px;
+
+    padding: 28px;
+
+    margin-bottom: 22px;
 
     box-shadow:
         0 4px 20px rgba(0,0,0,0.04);
 
     transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease;
-
-    margin-bottom: 22px !important;
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
-/* hover 动效 */
+.news-card:hover {
 
-.news-item:hover {
     transform: translateY(-2px);
 
     box-shadow:
         0 8px 30px rgba(0,0,0,0.08);
 }
 
-/* 卡片内部 */
+.news-meta {
 
-.news-item .card-body {
-    padding: 24px;
+    color: #86868b;
+
+    font-size: 0.9rem;
+
+    margin-bottom: 14px;
+
+    display: flex;
+
+    gap: 10px;
 }
 
-/* 标题 */
+.news-title {
 
-.card-title {
-    font-size: 1.15rem;
-    font-weight: 600;
+    margin: 0 0 14px;
+
+    font-size: 1.2rem;
+
     line-height: 1.5;
 }
 
-.card-title a {
+.news-title a {
+
     color: #1d1d1f;
+
     text-decoration: none;
 }
 
-/* 摘要 */
+.news-summary {
 
-.card-text,
-.extra-field {
     color: #6e6e73;
+
     line-height: 1.7;
+
+    margin: 0;
 }
 
-/* badge */
-
-.badge {
-    border-radius: 999px;
-    padding: 8px 12px;
-    font-weight: 500;
-}
-
-/* ===== 分页 ===== */
+/* Pagination */
 
 .pagination {
-    gap: 8px;
+
+    display: flex;
+
+    gap: 10px;
+
+    justify-content: center;
+
+    margin-top: 40px;
+
+    flex-wrap: wrap;
 }
 
-.page-link {
-    border: none;
-    border-radius: 12px !important;
+.page-btn {
 
-    color: #1d1d1f;
+    border: none;
+
+    background: white;
+
+    border-radius: 12px;
 
     padding: 10px 14px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
 }
 
-.page-item.active .page-link {
+.page-btn:hover {
+    background: #ececef;
+}
+
+.page-btn.active {
+
     background: #1d1d1f;
+
     color: white;
 }
 
-/* ===== Footer ===== */
+/* Empty */
 
-footer {
-    display: none;
+.empty {
+
+    padding: 80px 20px;
+
+    text-align: center;
+
+    color: #86868b;
 }
 
-/* ===== 响应式 ===== */
+/* Responsive */
 
 @media (max-width: 900px) {
 
-    .app-container {
+    .layout {
         flex-direction: column;
     }
 
     .sidebar {
+
         width: 100%;
+
         height: auto;
+
         position: relative;
+
         border-right: none;
-        border-bottom: 1px solid #e5e5e7;
+
+        border-bottom:
+            1px solid #e5e5e7;
     }
 
-    .main-content {
+    .main {
         padding: 24px;
     }
 }
