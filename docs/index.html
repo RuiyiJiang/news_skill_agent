@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>资讯聚合平台</title>
+    <title>资讯提取聚合平台界面</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="./assets/css/style.css" rel="stylesheet">
@@ -13,17 +13,19 @@
 
 <div class="layout">
 
-    <!-- Sidebar -->
+    <!-- aside：侧边内容区域 -->
     <aside class="sidebar">
 
+        <!-- 导航栏顶部标题 -->
         <div class="sidebar-top">
-            <h1 class="logo">资讯聚合</h1>
+            <h1 class="logo">资讯提取聚合</h1>
 
             <div class="update-time" id="updated-at">
                 加载中...
             </div>
         </div>
 
+        <!-- 导航栏模块 -->
         <nav class="nav">
 
             <a class="nav-link active" data-label="">
@@ -31,17 +33,19 @@
                 首页
             </a>
 
+            <!-- 资讯分组的标题 -->
             <div class="nav-group-title">
                 资讯分组
             </div>
 
+            <!-- 资讯分组每一组的链接栏 -->
             <div id="label-nav"></div>
 
         </nav>
 
     </aside>
 
-    <!-- Main -->
+    <!-- main右侧：主要内容区域 -->
     <main class="main">
 
         <!-- Topbar -->
@@ -182,17 +186,37 @@ function applyFilters(items) {
     });
 }
 
+
+// items数据填充侧边栏
 function populateSidebar(items) {
 
+    /*
+
+        1.去重并排序
+        2.生成 HTML 导航菜单
+        3.插入到页面中
+        4.给每个菜单绑定点击事件
+        5.点击后切换 active 状态
+        6.更新筛选条件
+        7.重新渲染页面
+
+     */
+
+    // 找到id为label-nav的元素
     const nav = document.getElementById("label-nav");
 
+    // 提取所有label，这里需要注意LLM生成的label不稳定，是否作为导航栏存疑
     const labels = [
+        // new Set方法用于去重，...是展开运算符，把Set重新变回数组
         ...new Set(
             items.map(item => item.label)
+            // 删除空值，对于源数据意义不大
             .filter(Boolean)
         )
+        // sort方法用于排序数组
     ].sort();
 
+    // 根据label动态生成html
     nav.innerHTML = labels.map(label => `
         <a class="nav-link"
            data-label="${escapeHtml(label)}">
