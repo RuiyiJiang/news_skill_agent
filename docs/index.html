@@ -93,6 +93,7 @@
 <script>
 
 const ITEMS_PER_PAGE = 20;
+const CONTENT_PREVIEW_LENGTH = 100; // 超过此字数折叠
 
 const state = {
     manifest: null,
@@ -109,7 +110,13 @@ const state = {
         label: ""
     },
 
-    page: 1
+    page: 1,
+
+    // Track expanded states
+    expandedItems: new Set(),
+
+    // Track generated summaries
+    generatedSummaries: new Map()
 };
 
 function escapeHtml(value) {
@@ -156,7 +163,9 @@ function applyFilters(items) {
             const haystack =
                 `${item.title || ""}
                  ${item.summary || ""}
-                 ${item.foreign_summary || ""}`
+                 ${item.foreign_summary || ""}
+                 ${item.chinese_translation || ""}
+                 ${item.content || ""}`
                 .toLowerCase();
 
             if (!haystack.includes(query)) {
@@ -276,7 +285,76 @@ function populateSourceSelect(items) {
         `).join("");
 }
 
-function renderItem(item) {
+function renderContent(item, itemId) {
+    const content = item.content || "";
+    const summary = item.summary || "";
+
+    if (!content && !summary) {
+        return `
+            <div class="news-content-wrapper">
+                <p class="news-no-content">暂无内容</p>
+            </div>
+        `;
+    }
+
+    const isExpanded = state.expandedItems.has(itemId);
+    const hasSummary = summary && summary.trim();
+
+    // If there's a pre-generated summary, show it
+    let summaryHtml = "";
+    if (hasSummary) {
+        summaryHtml = `
+            <div class="news-summary-section">
+                <span class="summary-label">摘要：</span>
+                <span class="summary-text">${escapeHtml(summary)}</span>
+            </div>
+        `;
+    }
+
+    // Show generated summary if exists
+    const generatedSummary = state.generatedSummaries.get(itemId);
+    let generatedSummaryHtml = "";
+    if (generatedSummary) {
+        generatedSummaryHtml = `
+            <div class="news-generated-summary">
+                <span class="generated-label">LLM生成摘要：</span>
+                <span class="generated-text">${escapeHtml(generatedSummary)}</span>
+            </div>
+        `;
+    }
+
+    // Content display logic
+    const shouldFold = content.length > CONTENT_PREVIEW_LENGTH && !isExpanded;
+    const displayContent = shouldFold
+        ? content.substring(0, CONTENT_PREVIEW_LENGTH) + "..."
+        : content;
+
+    const expandBtn = content.length > CONTENT_PREVIEW_LENGTH
+        ? `
+            <button class="expand-btn" data-item-id="${itemId}">
+                ${isExpanded ? '收起全文' : '展开全文'}
+                <i class="bi bi-chevron-${isExpanded ? 'up' : 'down'}"></i>
+            </button>
+        `
+        : "";
+
+    return `
+        <div class="news-content-wrapper">
+            ${summaryHtml}
+            ${generatedSummaryHtml}
+            <div class="news-full-content ${shouldFold ? 'folded' : ''}">
+                <div class="content-text">${escapeHtml(displayContent)}</div>
+                ${expandBtn}
+            </div>
+            <button class="llm-summary-btn" data-item-id="${itemId}" ${!content ? 'disabled' : ''}>
+                <i class="bi bi-magic"></i>
+                LLM生成摘要
+            </button>
+        </div>
+    `;
+}
+
+function renderItem(item, index) {
 
     const url = item.url || "#";
 
@@ -285,8 +363,14 @@ function renderItem(item) {
         item.raw_date_text ||
         "未知时间";
 
+    const hasTranslation =
+        item.chinese_translation &&
+        item.chinese_translation.trim();
+
+    const itemId = `item-${state.page}-${index}`;
+
     return `
-        <article class="news-card">
+        <article class="news-card" id="${itemId}">
 
             <div class="news-meta">
 
@@ -310,10 +394,22 @@ function renderItem(item) {
             </h3>
 
             ${
-                item.summary
+                hasTranslation
                 ? `
-                    <p class="news-summary">
-                        ${escapeHtml(item.summary)}
+                    <p class="news-subtitle">
+                        ${escapeHtml(item.chinese_translation)}
+                    </p>
+                `
+                : ""
+            }
+
+            ${renderContent(item, itemId)}
+
+            ${
+                hasTranslation && item.foreign_summary
+                ? `
+                    <p class="news-foreign-summary">
+                        ${escapeHtml(item.foreign_summary)}
                     </p>
                 `
                 : ""
@@ -321,6 +417,82 @@ function renderItem(item) {
 
         </article>
     `;
+}
+
+function bindContentEvents() {
+    // Bind expand/collapse buttons
+    document.querySelectorAll('.expand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const itemId = e.currentTarget.dataset.itemId;
+            if (state.expandedItems.has(itemId)) {
+                state.expandedItems.delete(itemId);
+            } else {
+                state.expandedItems.add(itemId);
+            }
+            render();
+        });
+    });
+
+    // Bind LLM summary buttons
+    document.querySelectorAll('.llm-summary-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const itemId = e.currentTarget.dataset.itemId;
+            await generateSummary(itemId);
+        });
+    });
+}
+
+async function generateSummary(itemId) {
+    const btn = document.querySelector(`.llm-summary-btn[data-item-id="${itemId}"]`);
+    if (!btn) return;
+
+    // Find the item
+    const items = applyFilters(getActiveItems());
+    const start = (state.page - 1) * ITEMS_PER_PAGE;
+    const pageItems = items.slice(start, start + ITEMS_PER_PAGE);
+    const index = parseInt(itemId.replace(`item-${state.page}-`, ''));
+    const item = pageItems[index];
+
+    if (!item || !item.content) {
+        alert('该资讯暂无全文内容，无法生成摘要');
+        return;
+    }
+
+    // Update button state
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> 生成中...';
+
+    try {
+        const response = await fetch('/api/summarize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: item.title,
+                content: item.content
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.summary) {
+            state.generatedSummaries.set(itemId, data.summary);
+            render();
+        } else {
+            throw new Error('No summary returned');
+        }
+
+    } catch (error) {
+        console.error('Failed to generate summary:', error);
+        alert('生成摘要失败，请稍后重试');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-magic"></i> LLM生成摘要';
+    }
 }
 
 function renderPagination(totalPages) {
@@ -413,7 +585,10 @@ function render() {
     } else {
 
         list.innerHTML =
-            pageItems.map(renderItem).join("");
+            pageItems.map((item, index) => renderItem(item, index)).join("");
+
+        // Bind event listeners for dynamic content
+        bindContentEvents();
     }
 
     renderPagination(totalPages);
