@@ -155,7 +155,9 @@ def _fetch_with_profile(
     context.add_init_script(_build_stealth_script(profile))
     page = context.new_page()
     try:
-        page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+        # Ensure url is a plain string
+        url_str = str(url).strip()
+        page.goto(url_str, wait_until="domcontentloaded", timeout=timeout_ms)
         if wait_selector:
             try:
                 page.wait_for_selector(wait_selector, timeout=timeout_ms)

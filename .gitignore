@@ -6,7 +6,20 @@ __pycache__/
 *$py.class
 .Python
 *.so
+.pytest_cache/
 
 # Local / secrets
 .env
 .DS_Store
+
+# Output files (generated reports)
+output/
+
+# IDE
+.vscode/
+.idea/
+.claude/
+
+# Test scripts
+test_*.py
+start_api_server.py

@@ -92,6 +92,11 @@
 
 <script>
 
+// API 配置 - 修改这里指向你的后端服务器
+// 如果前端和后端在同一服务器，使用空字符串 ''
+// 如果后端在独立服务器，使用完整 URL，如 'http://localhost:5000' 或 'https://api.yourdomain.com'
+const API_BASE_URL = 'http://localhost:5001';
+
 const ITEMS_PER_PAGE = 20;
 const CONTENT_PREVIEW_LENGTH = 100; // 超过此字数折叠
 
@@ -463,7 +468,7 @@ async function generateSummary(itemId) {
     btn.innerHTML = '<i class="bi bi-hourglass-split"></i> 生成中...';
 
     try {
-        const response = await fetch('/api/summarize', {
+        const response = await fetch(`${API_BASE_URL}/api/summarize`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

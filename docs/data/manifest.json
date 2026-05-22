@@ -1,8 +1,10 @@
 {
-  "generated_at": "2026-05-21T10:35:25.153284+08:00",
-  "report_scope": [],
-  "all_count": 631,
-  "filtered_count": 246,
-  "raw_output_file": "news_report_all_2026-05-19_163249.xlsx",
-  "filtered_output_file": "news_report_filtered_2026-05-19_163249.xlsx"
+  "generated_at": "2026-05-22T10:26:58.812393+08:00",
+  "report_scope": [
+    "新媒体"
+  ],
+  "all_count": 199,
+  "filtered_count": 9,
+  "raw_output_file": "news_report_all_新媒体_2026-05-22_102658.xlsx",
+  "filtered_output_file": "news_report_filtered_新媒体_2026-05-22_102658.xlsx"
 }

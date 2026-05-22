@@ -57,6 +57,20 @@ class Settings(BaseSettings):
     schedule_hour: int = Field(default=9, alias="SCHEDULE_HOUR")
     schedule_minute: int = Field(default=0, alias="SCHEDULE_MINUTE")
 
+    # LLM Summarizer settings
+    enable_llm_summary: bool = Field(default=False, alias="ENABLE_LLM_SUMMARY")
+    llm_summary_sources: str = Field(default="", alias="LLM_SUMMARY_SOURCES")
+    llm_summary_max_items: int = Field(default=50, alias="LLM_SUMMARY_MAX_ITEMS")
+    llm_summary_max_chars: int = Field(default=8000, alias="LLM_SUMMARY_MAX_CHARS")
+    llm_summary_prompt_template: str = Field(default="", alias="LLM_SUMMARY_PROMPT_TEMPLATE")
+
+    # Translation settings
+    enable_translation: bool = Field(default=False, alias="ENABLE_TRANSLATION")
+    translation_sources: str = Field(default="", alias="TRANSLATION_SOURCES")
+    translation_api_key: str = Field(default="", alias="TRANSLATION_API_KEY")
+    translation_base_url: str = Field(default="", alias="TRANSLATION_BASE_URL")
+    translation_model: str = Field(default="", alias="TRANSLATION_MODEL")
+
     @field_validator("log_level")
     @classmethod
     def validate_log_level(cls, value: str) -> str:

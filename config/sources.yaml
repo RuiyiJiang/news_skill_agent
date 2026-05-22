@@ -171,7 +171,7 @@
   base_url: https://www.cninfo.com.cn
   list_urls:
     - https://www.cninfo.com.cn/new/commonUrl/pageOfSearch?url=disclosure/list/search
-  enabled: false
+  enabled: true
   parser_type: custom_cninfo_announcements
   timezone: Asia/Shanghai
   date_format_hint:
@@ -190,7 +190,7 @@
   base_url: https://www.wsj.com
   list_urls:
     - https://www.wsj.com/business/retail?mod=nav_top_subsection
-  enabled: false
+  enabled: true
   parser_type: generic
   timezone: America/New_York
   date_format_hint:
@@ -675,7 +675,7 @@
   base_url: https://www.reuters.com
   list_urls:
     - https://www.reuters.com/business/retail-consumer/
-  enabled: false
+  enabled: true
   parser_type: generic
   timezone: America/New_York
   date_format_hint:
@@ -799,7 +799,7 @@
   base_url: https://www.foodtalks.cn/news
   list_urls:
     - https://www.foodtalks.cn/news
-  enabled: false
+  enabled: true
   parser_type: custom_foodtalks_news
   timezone: Asia/Shanghai
   date_format_hint:
@@ -834,6 +834,10 @@
   timezone: Asia/Shanghai
   date_format_hint:
   max_items: 20
+  query_params:
+    fetch_mode: browser
+    browser_engine: chromium
+    browser_wait_selector: ".news_item, .newsbox, .news_list"
 
 - name: 森永乳业
   groups:

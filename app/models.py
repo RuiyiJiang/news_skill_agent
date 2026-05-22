@@ -83,6 +83,10 @@ class NewsItem(BaseModel):
     content_preview: str | None = None
     date_parse_status: str = Field(default="missing")
     date_in_scope: bool | None = None
+    is_status: bool = Field(default=False)
+    chinese_translation: str = ""
+    foreign_summary: str = ""
+    content: str = ""  # Full article content extracted from URL
 
     @field_validator("date_parse_status")
     @classmethod

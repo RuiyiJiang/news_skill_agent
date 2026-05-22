@@ -687,30 +687,8 @@ class FoodBevHomepageParser(BaseNewsParser):
         return raw_date_text, summary, detail_title
 
     def _generate_summary_from_detail(self, soup: BeautifulSoup) -> str:
-        paragraphs: list[str] = []
-        for selector in ["article p", "main p", "[data-testid='richTextElement'] p"]:
-            for paragraph in soup.select(selector):
-                cleaned = self._clean_text(paragraph.get_text(" ", strip=True))
-                normalized = self._normalize_summary_paragraph(cleaned)
-                if normalized:
-                    paragraphs.append(normalized)
-            if paragraphs:
-                break
-
-        if not paragraphs:
-            meta_description = soup.select_one('meta[name="description"]')
-            cleaned = self._clean_text(meta_description.get("content") if meta_description else "")
-            normalized = self._normalize_summary_paragraph(cleaned)
-            if normalized:
-                paragraphs.append(normalized)
-
-        if not paragraphs:
-            return ""
-
-        summary_body = " ".join(paragraphs[:2]).strip()
-        if len(summary_body) > 180:
-            summary_body = summary_body[:177].rstrip() + "..."
-        return f"{self.SUMMARY_PREFIX}{summary_body}"
+        # Disabled: LLM will generate summaries instead
+        return ""
 
     def _normalize_summary_paragraph(self, text: str) -> str:
         if not text:
@@ -1343,13 +1321,8 @@ class FoodTalksFlashParser(BaseNewsParser):
         )
 
     def _extract_summary(self, raw_html: str | None) -> str:
-        soup = BeautifulSoup(raw_html or "", "lxml")
-        texts = [self._clean_text(text) for text in soup.stripped_strings]
-        texts = [text for text in texts if text and text != "\xa0"]
-        summary_body = " ".join(texts[:3]).strip()
-        if len(summary_body) > 180:
-            summary_body = summary_body[:177].rstrip() + "..."
-        return f"{self.SUMMARY_PREFIX}{summary_body}" if summary_body else ""
+        # Disabled: LLM will generate summaries instead
+        return ""
 
     def _clean_text(self, value: str | None) -> str:
         return re.sub(r"\s+", " ", value or "").strip()
@@ -1546,10 +1519,8 @@ class FoodTalksNewsParser(BaseNewsParser):
 
 
 class ThePaperExpressNewsParser(BaseNewsParser):
-    DATA_URL = (
-        "https://www.thepaper.cn/_next/data/"
-        "3ea43dba8c027c43cef78bfe56d9e489e063a68e/expressNews.json"
-    )
+    """澎湃快讯解析器 - 从 Next.js __NEXT_DATA__ 中提取数据"""
+
     SUMMARY_PREFIX = "【程序生成摘要】"
 
     def __init__(self, settings: Settings) -> None:
@@ -1563,30 +1534,91 @@ class ThePaperExpressNewsParser(BaseNewsParser):
 
     def fetch_recent(self, source: SourceConfig, now: datetime) -> list[NewsItem]:
         max_items = source.max_items or self.settings.max_items_per_source
-        response = self.client.get(self.DATA_URL)
-        response.raise_for_status()
-        payload = response.json()
-        init_data = payload.get("pageProps", {}).get("initSsrData", {})
-        date_list = init_data.get("dateList", []) if isinstance(init_data, dict) else []
-
         items: list[NewsItem] = []
-        for day_block in date_list:
-            if not isinstance(day_block, dict):
-                continue
-            for entry in day_block.get("contList", []):
-                if not isinstance(entry, dict):
+
+        for list_url in source.list_urls:
+            html = self._fetch_page_html(str(list_url), source)
+            soup = BeautifulSoup(html, "lxml")
+
+            # 从 __NEXT_DATA__ script 标签中提取 JSON 数据
+            next_data_script = soup.select_one("script#__NEXT_DATA__")
+            if not next_data_script:
+                raise RuntimeError(
+                    f"澎湃快讯页面未找到 __NEXT_DATA__ 数据，页面结构可能已变化。url={list_url}"
+                )
+
+            try:
+                next_data = json.loads(next_data_script.string)
+                init_ssr_data = next_data.get("props", {}).get("pageProps", {}).get("initSsrData", {})
+                date_list = init_ssr_data.get("dateList", [])
+            except (json.JSONDecodeError, AttributeError) as e:
+                raise RuntimeError(f"澎湃快讯 __NEXT_DATA__ JSON 解析失败: {e}")
+
+            # 遍历日期列表和新闻列表
+            for day_block in date_list:
+                if not isinstance(day_block, dict):
                     continue
-                parsed = self._parse_entry(entry, source, now)
-                if parsed is not None:
-                    items.append(parsed)
-                if len(items) >= max_items:
-                    return items[:max_items]
+
+                pub_date = day_block.get("pubDate", "")
+                cont_list = day_block.get("contList", [])
+
+                for entry in cont_list:
+                    if not isinstance(entry, dict):
+                        continue
+
+                    parsed = self._parse_entry(entry, source, now, pub_date)
+                    if parsed is not None:
+                        items.append(parsed)
+                    if len(items) >= max_items:
+                        return items[:max_items]
+
+        # 如果一条都没爬到，说明数据提取失败
+        if not items:
+            raise RuntimeError(
+                f"澎湃快讯爬取未获取到任何新闻条目，"
+                f"页面可能结构已变化或无数据。url={source.list_urls}"
+            )
+
         return items[:max_items]
 
-    def _parse_entry(self, entry: dict, source: SourceConfig, now: datetime) -> NewsItem | None:
-        title = self._clean_text(entry.get("name"))
-        cont_id = self._clean_text(entry.get("contId"))
-        raw_date_text = self._build_datetime_text(entry)
+    def _fetch_page_html(self, page_url: str, source: SourceConfig) -> str:
+        if self._should_use_browser_fetch(source):
+            return fetch_html_with_playwright(
+                page_url,
+                timeout_seconds=self.settings.request_timeout_seconds,
+                locale="zh-CN",
+                wait_selector=self._browser_wait_selector(source),
+                preferred_engine=self._browser_engine(source),
+            )
+        response = self.client.get(page_url)
+        response.raise_for_status()
+        return response.text
+
+    def _should_use_browser_fetch(self, source: SourceConfig) -> bool:
+        return source.query_params.get("fetch_mode", "").strip().lower() == "browser"
+
+    def _browser_wait_selector(self, source: SourceConfig) -> str | None:
+        wait_selector = source.query_params.get("browser_wait_selector", "").strip()
+        if wait_selector:
+            return wait_selector
+        return "script#__NEXT_DATA__, body"
+
+    def _browser_engine(self, source: SourceConfig) -> str | None:
+        engine = source.query_params.get("browser_engine", "").strip().lower()
+        return engine or None
+
+    def _parse_entry(self, entry: dict, source: SourceConfig, now: datetime, pub_date: str) -> NewsItem | None:
+        """解析单条新闻条目"""
+        cont_id = entry.get("contId", "")
+        title = self._clean_text(entry.get("name", ""))
+        pub_time = entry.get("pubTime", "")
+
+        if not title or not cont_id:
+            return None
+
+        # 构建日期时间字符串
+        raw_date_text = f"{pub_date} {pub_time}" if pub_date and pub_time else pub_date or pub_time
+
         published_at = parse_datetime_text(raw_date_text, source.timezone, source.date_format_hint)
         date_parse_status = "parsed" if published_at else ("failed" if raw_date_text else "missing")
         date_in_scope = is_in_yesterday_today_window(
@@ -1596,56 +1628,25 @@ class ThePaperExpressNewsParser(BaseNewsParser):
             window_days=source.window_days,
         )
 
-        if not title or not cont_id:
-            return None
         if published_at is not None and date_in_scope is False:
             return None
         if published_at is None and not self.settings.include_items_without_parsed_date:
             return None
 
         article_url = f"https://www.thepaper.cn/newsDetail_forward_{cont_id}"
-        summary = self._extract_summary(entry)
+
         return NewsItem(
             title=title,
-            summary=summary,
+            summary="",
             published_at=published_at,
             url=article_url,
             source=source.name,
             collected_at=now,
             raw_date_text=raw_date_text or None,
-            content_preview=summary[:200] or None,
+            content_preview=title[:200] if title else None,
             date_parse_status=date_parse_status,
             date_in_scope=date_in_scope,
         )
-
-    def _build_datetime_text(self, entry: dict) -> str:
-        pub_date = self._clean_text(entry.get("pubDate"))
-        pub_time = self._clean_text(entry.get("pubTime"))
-        if pub_date and pub_time:
-            return f"{pub_date} {pub_time}"
-        return pub_date or pub_time
-
-    def _extract_summary(self, entry: dict) -> str:
-        parts: list[str] = []
-
-        content = entry.get("content")
-        if isinstance(content, str) and content.strip():
-            soup = BeautifulSoup(content, "lxml")
-            parts.extend(self._clean_text(text) for text in soup.stripped_strings)
-
-        if not parts:
-            for block in entry.get("contentList", []) if isinstance(entry.get("contentList"), list) else []:
-                if not isinstance(block, dict):
-                    continue
-                text = self._clean_text(block.get("content"))
-                if text:
-                    parts.append(text)
-
-        parts = [part for part in parts if part]
-        summary_body = " ".join(parts[:2]).strip()
-        if len(summary_body) > 180:
-            summary_body = summary_body[:177].rstrip() + "..."
-        return f"{self.SUMMARY_PREFIX}{summary_body}" if summary_body else ""
 
     def _clean_text(self, value: object) -> str:
         return re.sub(r"\s+", " ", str(value or "")).strip()
@@ -1841,21 +1842,8 @@ class PepsiCoPressReleaseParser(BaseNewsParser):
         return raw_date_text or None, summary
 
     def _extract_summary(self, value: str) -> str:
-        if not value:
-            return ""
-        soup = BeautifulSoup(value, "lxml")
-        paragraphs = [
-            self._clean_text(paragraph.get_text(" ", strip=True))
-            for paragraph in soup.select("p")
-            if self._clean_text(paragraph.get_text(" ", strip=True))
-        ]
-        if paragraphs:
-            text = " ".join(paragraphs[:2]).strip()
-        else:
-            text = self._clean_text(soup.get_text(" ", strip=True))
-        if len(text) > 180:
-            text = text[:177].rstrip() + "..."
-        return f"{self.SUMMARY_PREFIX}{text}" if text else ""
+        # Disabled: LLM will generate summaries instead
+        return ""
 
     def _extract_value(self, value: object) -> str:
         if isinstance(value, dict):
@@ -2056,31 +2044,8 @@ class PepsiCoChinaMediaCenterParser(BaseNewsParser):
         return normalized
 
     def _extract_detail_summary(self, detail: dict[str, object]) -> str:
-        brief = self._clean_text(detail.get("brief"))
-        if brief:
-            return brief
-
-        html = self._clean_text(detail.get("content"))
-        if not html:
-            return ""
-
-        soup = BeautifulSoup(html, "lxml")
-        blocks: list[str] = []
-        for node in soup.select("p, li"):
-            text = self._clean_text(node.get_text(" ", strip=True))
-            if text:
-                blocks.append(text)
-            if len(blocks) >= 2:
-                break
-
-        if not blocks:
-            text = self._clean_text(soup.get_text(" ", strip=True))
-        else:
-            text = " ".join(blocks).strip()
-
-        if len(text) > 180:
-            text = text[:177].rstrip() + "..."
-        return f"{self.SUMMARY_PREFIX}{text}" if text else ""
+        # Disabled: LLM will generate summaries instead
+        return ""
 
     def _extract_int(self, value: object) -> int | None:
         try:
@@ -7750,30 +7715,8 @@ class BJNewsIndustrialParser(BaseNewsParser):
         return None
 
     def _generate_summary_from_detail(self, soup: BeautifulSoup) -> str:
-        paragraphs: list[str] = []
-        for selector in [".article-text p", ".content p", ".detail_Txt p", "article p"]:
-            for paragraph in soup.select(selector):
-                cleaned = self._clean_text(paragraph.get_text(" ", strip=True))
-                normalized = self._normalize_paragraph(cleaned)
-                if normalized:
-                    paragraphs.append(normalized)
-            if paragraphs:
-                break
-
-        if not paragraphs:
-            meta_description = soup.select_one('meta[name="description"]')
-            cleaned = self._clean_text(meta_description.get("content") if meta_description else "")
-            normalized = self._normalize_paragraph(cleaned)
-            if normalized:
-                paragraphs.append(normalized)
-
-        if not paragraphs:
-            return ""
-
-        summary_body = " ".join(paragraphs[:2]).strip()
-        if len(summary_body) > 180:
-            summary_body = summary_body[:177].rstrip() + "..."
-        return f"{self.SUMMARY_PREFIX}{summary_body}"
+        # Disabled: LLM will generate summaries instead
+        return ""
 
     def _normalize_paragraph(self, text: str) -> str:
         if not text:

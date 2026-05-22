@@ -1,19 +1,24 @@
 from __future__ import annotations
 
+import json
 import logging
 import re
 from collections.abc import Sequence
 from datetime import datetime
+from pathlib import Path
 
 from app.config import Settings
+from app.content_extractor import ContentExtractor
 from app.crawlers.factory import get_parser
 from app.excel_writer import write_news_report
 from app.feishu import FeishuNotifier
 from app.llm_filter import OpenAIFoodIndustryFilter
+from app.llm_summarizer import LLMSummarizer
 from app.models import CrawlResult, NewsItem, PipelineResult
 from app.sources_loader import load_sources, load_sources_by_names, normalize_groups
 from app.tagging import assign_label
 from app.utils.dedupe import dedupe_news_items
+from app.translator import LLMTranslator, looks_like_chinese
 
 
 LOGGER = logging.getLogger(__name__)
@@ -94,8 +99,60 @@ def _run_pipeline_for_sources(
         item.label = assign_label(item.title, item.summary)
 
     all_items = dedupe_news_items(aggregated_items)
+
+    # Step 1: LLM food industry filter (BEFORE extracting full content)
+    # This avoids wasting time and resources fetching content for irrelevant articles
     llm_filter = OpenAIFoodIndustryFilter(settings)
-    final_items = llm_filter.filter_items(all_items)
+    filtered_items = llm_filter.filter_items(all_items)
+    LOGGER.info(
+        "LLM food filter: %d items in -> %d items kept (%d filtered out)",
+        len(all_items), len(filtered_items), len(all_items) - len(filtered_items),
+    )
+
+    # Step 2: Extract full content from article URLs (ONLY for filtered items)
+    LOGGER.info("Extracting full content from %d filtered article URLs...", len(filtered_items))
+    content_extractor = ContentExtractor(settings)
+    for idx, item in enumerate(filtered_items):
+        if str(item.url):
+            content = content_extractor.extract_content(str(item.url))
+            item.content = content
+            if content:
+                LOGGER.debug("Extracted %d chars for: %s", len(content), item.title[:50])
+            LOGGER.info(
+                "Content extraction progress: %d/%d (%d%%) - %s",
+                idx + 1,
+                len(filtered_items),
+                (idx + 1) * 100 // len(filtered_items),
+                str(item.url)[:80],
+            )
+
+    # Step 3: LLM summarization is now done on-demand via API, not during pipeline
+    # The summarize_items call is removed - summaries will be generated via /api/summarize endpoint
+
+    # Step 3: Translation for configured sources (after summarization)
+    if settings.enable_translation:
+        translator = LLMTranslator(settings)
+        translation_sources = {s.strip() for s in settings.translation_sources.split(",") if s.strip()}
+        translate_all = "*" in translation_sources
+        translated_count = 0
+        for item in filtered_items:
+            if translate_all or item.source in translation_sources:
+                # Always translate title for configured sources
+                if item.title:
+                    translated = translator.translate_title(item.title)
+                    if translated:
+                        item.chinese_translation = item.title  # Keep original
+                        item.title = translated
+                        translated_count += 1
+                # Always translate summary for configured sources
+                if item.summary:
+                    translated = translator.translate_summary(item.summary)
+                    if translated:
+                        item.foreign_summary = item.summary  # Keep original
+                        item.summary = translated
+        LOGGER.info("Translated %d items for sources: %s", translated_count, translation_sources)
+
+    final_items = filtered_items
     unresolved_date_items = sum(1 for item in final_items if item.published_at is None)
     status_rows = _build_empty_source_rows(crawl_results)
     raw_report_name = _build_report_name("news_report_all", report_scope)
@@ -113,6 +170,17 @@ def _run_pipeline_for_sources(
         started_at,
         report_name=filtered_report_name,
         extra_rows=status_rows,
+    )
+
+    # Write filtered results to JSON and update manifest
+    _write_filtered_json(final_items, settings.output_dir, started_at)
+    _write_manifest(
+        now=started_at,
+        report_scope=report_scope,
+        all_count=len(all_items),
+        filtered_count=len(final_items),
+        raw_output_file=raw_output_file,
+        filtered_output_file=filtered_output_file,
     )
 
     finished_at = datetime.now().astimezone()
@@ -202,3 +270,60 @@ def _build_empty_source_rows(crawl_results: Sequence[CrawlResult]) -> list[dict[
             }
         )
     return rows
+
+
+def _write_filtered_json(items: list[NewsItem], output_dir: Path, now: datetime) -> None:
+    """Write filtered news items to docs/data/filtered.json, replacing the previous content."""
+    data_dir = Path(__file__).resolve().parent.parent / "docs" / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    json_path = data_dir / "filtered.json"
+
+    json_items = [
+        {
+            "source": item.source,
+            "title": item.title,
+            "url": str(item.url),
+            "published_at": item.published_at.strftime("%Y-%m-%d %H:%M:%S") if item.published_at else "",
+            "raw_date_text": item.raw_date_text or "",
+            "label": item.label,
+            "is_status": item.is_status,
+            "summary": item.summary or "",
+            "chinese_translation": item.chinese_translation or "",
+            "foreign_summary": item.foreign_summary or "",
+            "content": item.content or "",  # Full article content
+        }
+        for item in items
+    ]
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(json_items, f, ensure_ascii=False, indent=2)
+
+    LOGGER.info("Written %d filtered items to %s", len(json_items), json_path)
+
+
+def _write_manifest(
+    now: datetime,
+    report_scope: Sequence[str],
+    all_count: int,
+    filtered_count: int,
+    raw_output_file: Path,
+    filtered_output_file: Path,
+) -> None:
+    """Write manifest.json with metadata about the current extraction run."""
+    data_dir = Path(__file__).resolve().parent.parent / "docs" / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = data_dir / "manifest.json"
+
+    manifest = {
+        "generated_at": now.isoformat(),
+        "report_scope": list(report_scope),
+        "all_count": all_count,
+        "filtered_count": filtered_count,
+        "raw_output_file": raw_output_file.name if raw_output_file else "",
+        "filtered_output_file": filtered_output_file.name if filtered_output_file else "",
+    }
+
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+    LOGGER.info("Updated manifest.json at %s", manifest_path)
